@@ -1,34 +1,40 @@
 <?php
 
 try {
-  $pdo = new PDO('mysql:host=localhost;dbname=ijdb;charset=utf8', 'ijdbuser', 'mypassword');
-  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  include __DIR__ . '/../includes/DatabaseConnection.php';
+  include_once __DIR__ . '/../includes/DatabaseFunctions.php';
 
-  $sql = 'SELECT `id`, `joketext` FROM `joke`';
-  $jokes = $pdo->query($sql);
+    $result = findAll($pdo, 'joke');
 
-//   // while ($row = $result->fetch()) {
-//   //    $jokes[] = ['id' => $row['id'], 'joketext' => $row['joketext']];
-//   // }
+    $jokes = [];
+ 
+	foreach ($result as $joke) {
+		$author = findById($pdo, 'author', 'id', $joke['authorId']);
 
-// foreach($result as $row) {
-//     $jokes[] = array('id' => $row['id'], 'joketext' => $row['joketext']);
-// }
+		$jokes[] = [
+			'id' => $joke['id'],
+			'joketext' => $joke['joketext'],
+			'jokedate' => $joke['jokedate'],
+			'name' => $author['name'],
+			'email' => $author['email']
+		];
 
-  $title = 'List of Humour';
+	}
 
-  ob_start();
+    $title = 'List of Humour';
+    $totalJokes = total($pdo, 'joke');
 
-  include  __DIR__ . '/../templates/jokes.html.php';
+    ob_start();
+    
+    include  __DIR__ . '/../templates/jokes.html.php';
 
-  $output = ob_get_clean();
+    $output = ob_get_clean();
 
-}
-catch (PDOException $e) {
-  $title = 'An Error has been occurred';
+  } catch (PDOException $e) {
+    $title = 'An Error has been occurred';
 
-  $output = 'Database Error: ' . $e->getMessage() . ', Location: ' .
-  $e->getFile() . ':' . $e->getLine();
-}
+    $output = 'Database Error: ' . $e->getMessage() . ', Location: ' .
+    $e->getFile() . ':' . $e->getLine();
+  }
 
 include  __DIR__ . '/../templates/layout.html.php';
