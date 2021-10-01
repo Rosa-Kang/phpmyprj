@@ -1,5 +1,5 @@
 <?php
-class DatabaseTable { //any function inside class is METHOD. and whenever the method is called, $this must be called upon.
+class DatabaseTable { 
     private $pdo;
 	private $table;
 	private $primaryKey;
