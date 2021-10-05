@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="jokes.css">
+    <link rel="stylesheet" href="/jokes.css">
     <title><?=$title?></title>
   </head>
   <body>
@@ -11,9 +11,9 @@
       <h1>Internet Humour World</h1>
     </header>
     <ul>
-      <li><a href="index.php">Home</a></li>
-      <li><a href="jokes.php">List of Jokes</a></li>
-      <li><a href="editjoke.php">Add a Joke</a></li>
+      <li><a href="/">Home</a></li>
+      <li><a href="/joke/list">List of Jokes</a></li>
+      <li><a href="/joke/edit">Add a Joke</a></li>
     </ul>
   </nav>
 

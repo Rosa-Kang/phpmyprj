@@ -1,74 +1,83 @@
 <?php
 class JokeController {
-    private $authorsTable;
-    private $jokesTable;
+	private $authorsTable;
+	private $jokesTable;
 
-    public function __constrruct(DatabaseTable $jokesTable, DatabaseTable $authorsTable) {
-        $this -> jokesTable = $jokesTable;
-        $this -> authorsTable = $authorsTable;
-    }
+	public function __construct(DatabaseTable $jokesTable, DatabaseTable $authorsTable) {
+		$this->jokesTable = $jokesTable;
+		$this->authorsTable = $authorsTable;
+	}
 
-    public function list() {
-        $result = $this-> jokesTable -> findAll();
-        $jokes =[];
-        foreach($result as $joke) {
-            $author = $this -> authorsTable -> findById($joke['authorId']);
-            $jokes[] = [
-                'id' => $joke['id'],
-                'joketext' => $joke['joketext'],
-                'jokedate' => $joke['jokedate'],
-                'name' => $author['name'],
-                'email' => $author['email'],
-            ];
-        }
-        $title = 'List of Jokes';
-        $totalJokes = $this -> jokesTable ->total();
+	public function list() {
+		$result = $this->jokesTable->findAll();
 
-        ob_start();
-        include __DIR__ . '/../templates/jokes.html.php';
-        $output = ob_get_clean();
+		$jokes = [];
+		foreach ($result as $joke) {
+			$author = $this->authorsTable->findById($joke['authorId']);
 
-        return ['output' => $output, 'title'=>$title];
-    }
+			$jokes[] = [
+				'id' => $joke['id'],
+				'joketext' => $joke['joketext'],
+				'jokedate' => $joke['jokedate'],
+				'name' => $author['name'],
+				'email' => $author['email']
+			];
 
-    public function home() {
-        $title = 'The World of Humours';
+		}
 
-        ob_start();
 
-        include __DIR__. '/../templates/home.html.php';
-        $output = ob_get_clean();
+		$title = 'List of Jokes';
 
-        return ['output' => $output, 'title' => $title];
-    }
+		$totalJokes = $this->jokesTable->total();
 
-    public function delete() {
-        $this -> jokesTable -> delete($POST['id']);
-        header('location: jokes.php');
-    }
+		return ['template' => 'jokes.html.php', 
+				'title' => $title, 
+				'variables' => [
+						'totalJokes' => $totalJokes,
+						'jokes' => $jokes
+					]
+				];
+	}
 
-    public function edit() {
-        if (isset($POST['joke'])) {
-            $joke = $_POST['joke'];
-            $joke['jokedate'] = new DateTime();
-            $joke['authorId'] = 1;
+	public function home() {
+		$title = 'The World of Humour';
 
-            $this -> jokesTable->save($joke);
-            header('location: jokes.php');
-        } else {
-            if(isset($_GET['id'])) {
-                $joke = $this -> jokesTable -> findById($_GET['id']);
-            }
+		return ['template' => 'home.html.php', 'title' => $title];
+	}
 
-            $title = 'Edit Jokes';
+	public function delete() {
+		$this->jokesTable->delete($_POST['id']);
 
-            ob_start();
+		header('location: /joke/list');
+	}
 
-            include __DIR__ . '/../templates/editjoke.html.php';
 
-            $output = ob_get_clean();
+	public function edit() {
+		if (isset($_POST['joke'])) {
 
-            return ['output' => $output, 'title'=>$title];
-        }
-    }
+			$joke = $_POST['joke'];
+			$joke['jokedate'] = new DateTime();
+			$joke['authorId'] = 1;
+
+			$this->jokesTable->save($joke);
+			
+			header('location: index.php?action=list'); 
+
+		}
+		else {
+
+			if (isset($_GET['id'])) {
+				$joke = $this->jokesTable->findById($_GET['id']);
+			}
+
+			$title = 'Edit the joke';
+
+			return ['template' => 'editjoke.html.php',
+					'title' => $title,
+					'variables' => [
+							'joke' => $joke ?? null
+						]
+					];
+		}
+	}
 }

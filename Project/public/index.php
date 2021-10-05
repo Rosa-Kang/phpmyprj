@@ -1,26 +1,12 @@
 <?php
 try {
-    include __DIR__. '/../includes/DatabaseConnection.php';
-    include __DIR__. '/../classes/DatabaseTable.php';
-    include __DIR__. '/../controllers/JokeController.php';
+    include __DIR__. '/../classes/EntryPoint.php';
+    include __DIR__. '/../classes/IjdbRoutes.php';
 
-    $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
-    $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+    $route = ltrim(strtok($_SERVER['REQUEST_URI'], '?'), '/');
 
-    $jokeController = new JokeController($jokesTable, $authorsTable);
-
-    if(isset($_GET['edit'])) {
-        $page = $jokeController -> edit();
-    } elseif(isset($_GET['delete'])) {
-        $page = $jokeController->delete();
-    } elseif(isset($_GET['list'])) {
-        $page = $jokeController->list();
-    } else {
-        $page = $jokeController->home();
-    }
-
-    $title = $page['title'];
-    $output = $page['output'];
+    $entryPoint = new EntryPoint($route, new IjdbRoutes());
+    $entryPoint -> run();
 
 } catch(PDOException $e) {
     $title = 'An Error has been occurred';
