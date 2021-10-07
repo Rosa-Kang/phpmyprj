@@ -2,42 +2,51 @@
 namespace Hanbit;
 
 class EntryPoint {
-    private $route;
-    Private $routes;
+	private $route;
+	private $method;
+	private $routes;
 
-    public function __construct($route, $routes) 
-    {
-        $this -> route = $route;
-        $this -> routes = $routes;
-        $this -> checkUrl();
-    }
+	public function __construct(string $route, string $method, \Hanbit\Routes $routes) {
+		$this->route = $route;
+		$this->routes = $routes;
+		$this->method = $method;
+		$this->checkUrl();
+	}
 
-    private function checkUrl() {
-        if($this -> route !== strtolower($this -> route)) {
-            http_response_code(301);
-            header('location: ' . strtolower($this->route));
-        }
-    }
+	private function checkUrl() {
+		if ($this->route !== strtolower($this->route)) {
+			http_response_code(301);
+			header('location: ' . strtolower($this->route));
+		}
+	}
 
-    private function loadTemplate($templateFileName, $variables=[]) {
-        extract($variables);
+	private function loadTemplate($templateFileName, $variables = []) {
+		extract($variables);
 
-        ob_start();
-        include __DIR__ . '/../../templates/' . $templateFileName;
-    }
+		ob_start();
+		include  __DIR__ . '/../../templates/' . $templateFileName;
 
-    
-    public function run() {
-        $page = $this -> routes -> callAction($this-> route);
+		return ob_get_clean();
+	}
 
-        $title = $page['title'];
+	public function run() {
 
-        if(isset($page['variables'])) {
-            $output = $this -> loadTemplate($page['template'], $page['variables']);
-        } else {
-            $output = $this -> loadTemplate($page['template']);
-        }
+		$routes = $this->routes->getRoutes();
 
-        include __DIR__ . '/../../templates/layout.html.php';
-    }
+		$controller = $routes[$this->route][$this->method]['controller'];
+		$action = $routes[$this->route][$this->method]['action'];
+
+		$page = $controller->$action();
+
+		$title = $page['title'];
+
+		if (isset($page['variables'])) {
+			$output = $this->loadTemplate($page['template'], $page['variables']);
+		}
+		else {
+			$output = $this->loadTemplate($page['template']);
+		}
+
+		include  __DIR__ . '/../../templates/layout.html.php';
+	}
 }

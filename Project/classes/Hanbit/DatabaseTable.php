@@ -1,8 +1,8 @@
 <?php
 namespace Hanbit;
 
-class DatabaseTable { 
-    private $pdo;
+class DatabaseTable {
+	private $pdo;
 	private $table;
 	private $primaryKey;
 
@@ -13,8 +13,7 @@ class DatabaseTable {
 	}
 
 	private function query($sql, $parameters = []) {
-		$query = 
-		$this->pdo->prepare($sql);
+		$query = $this->pdo->prepare($sql);
 		$query->execute($parameters);
 		return $query;
 	}	
